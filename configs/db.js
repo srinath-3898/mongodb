@@ -19,7 +19,7 @@ let _db;
 
 const mongoConnect = (callback) => {
   MondgoClient.connect(
-    "mongodb+srv://munnurusrinath3898:Munnuru1998@cluster0.mut8kym.mongodb.net/shop?retryWrites=true&w=majority"
+    "mongodb+srv://munnurusrinath3898:Munnuru1998@cluster0.mut8kym.mongodb.net/?retryWrites=true&w=majority"
   )
     .then((client) => {
       console.log("connected");
@@ -27,7 +27,7 @@ const mongoConnect = (callback) => {
       callback();
     })
     .catch((error) => {
-      console.log(error);
+      console.log(error.message);
       throw error;
     });
 };

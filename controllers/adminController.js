@@ -10,7 +10,13 @@ const addProduct = async (req, res) => {
         message: "Missing required fields",
       });
     }
-    const product = new Product(title, price, description, imageUrl);
+    const product = new Product(
+      title,
+      price,
+      description,
+      imageUrl,
+      req.user._id
+    );
     await product.save();
 
     return res.status(201).json({
