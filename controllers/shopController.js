@@ -36,7 +36,7 @@ const addProductToCart = async (req, res) => {
         .json({ status: false, data: null, message: "Missing product id" });
     }
     const product = await Product.findById(productId);
-    const result = await User.addToCart(product, req.user._id);
+    const result = await User.addToCart(product, req.user._id, req.user.cart);
     return res.status(201).json({
       status: true,
       data: result,
@@ -49,4 +49,41 @@ const addProductToCart = async (req, res) => {
   }
 };
 
-module.exports = { getProducts, getProductById, addProductToCart };
+const getCart = async (req, res) => {
+  try {
+    const cart = await User.getCart(req.user.cart);
+    return res
+      .status(200)
+      .json({ status: true, data: { cart }, message: null });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: false, data: null, message: error.message });
+  }
+};
+
+const deleteProductFromCart = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    await User.deleteProductFromCart(productId, req.user._id, req.user.cart);
+    return res
+      .status(200)
+      .json({
+        status: true,
+        data: null,
+        message: "Product deleted from cart successfully",
+      });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: false, data: null, message: error.message });
+  }
+};
+
+module.exports = {
+  getProducts,
+  getProductById,
+  addProductToCart,
+  getCart,
+  deleteProductFromCart,
+};

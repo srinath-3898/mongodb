@@ -24,19 +24,66 @@ class User {
     }
   }
 
-  static addToCart(product, userId) {
-    // const cartProductId = this.cart.items.findIndex((cp) => {
-    //   return cp._id === product._id;
-    // });
+  static addToCart(product, userId, cart) {
+    const cartProductId = cart.products.findIndex((cp) => {
+      return cp.productId.toString() === product._id.toString();
+    });
+    let newQuantity = 1;
+    const updatedCartProducts = [...cart.products];
+    if (cartProductId >= 0) {
+      newQuantity = cart.products[cartProductId].quantity + 1;
+      updatedCartProducts[cartProductId].quantity = newQuantity;
+    } else {
+      updatedCartProducts.push({
+        productId: new mongodb.ObjectId(product._id),
+        quantity: newQuantity,
+      });
+    }
     const updatedCart = {
-      products: [{ productId: new mongodb.ObjectId(product.Id), quantity: 1 }],
+      products: updatedCartProducts,
     };
+    console.log(updatedCart);
     const db = getDb();
     return db
       .collection("users")
       .updateOne(
         { _id: new mongodb.ObjectId(userId) },
         { $set: { cart: updatedCart } }
+      )
+      .then((result) => result)
+      .catch((err) => err);
+  }
+
+  static getCart(cart) {
+    const db = getDb();
+    const productIds = cart.products.map((product) => product.productId);
+    return db
+      .collection("products")
+      .find({ _id: { $in: productIds } })
+      .toArray()
+      .then((products) => {
+        return products.map((product) => {
+          return {
+            ...product,
+            quantity: cart.products.find((i) => {
+              return i.productId.toString() === product._id.toString();
+            }).quantity,
+          };
+        });
+      })
+      .catch((err) => err);
+  }
+
+  static deleteProductFromCart(productId, userId, cart) {
+    const updatedCartProducts = cart.products.filter(
+      (product) => product.productId.toString() !== productId.toString()
+    );
+    const db = getDb();
+    return db
+      .collection("users")
+      .updateOne(
+        { _id: new mongodb.ObjectId(userId) },
+        { $set: { cart: { products: updatedCartProducts } } }
       )
       .then((result) => result)
       .catch((err) => err);
