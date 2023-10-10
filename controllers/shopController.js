@@ -1,4 +1,5 @@
 const Product = require("../models/productModel");
+const User = require("../models/userModel");
 
 const getProducts = async (req, res) => {
   try {
@@ -26,4 +27,26 @@ const getProductById = async (req, res) => {
   }
 };
 
-module.exports = { getProducts, getProductById };
+const addProductToCart = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    if (!productId) {
+      return res
+        .status(400)
+        .json({ status: false, data: null, message: "Missing product id" });
+    }
+    const product = await Product.findById(productId);
+    const result = await User.addToCart(product, req.user._id);
+    return res.status(201).json({
+      status: true,
+      data: result,
+      message: "Product added to cart successfully",
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: false, data: null, message: error.message });
+  }
+};
+
+module.exports = { getProducts, getProductById, addProductToCart };

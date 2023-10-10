@@ -21,7 +21,7 @@ const addProduct = async (req, res) => {
 
     return res.status(201).json({
       status: true,
-      data: result,
+      data: product,
       message: "Prodcut added successfully",
     });
   } catch (error) {
