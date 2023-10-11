@@ -1,9 +1,9 @@
-const Product = require("../models/productModel");
+const Prodcut = require("../models/productModel");
 const User = require("../models/userModel");
 
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.fetchAll();
+    const products = await Prodcut.find();
     return res.json({ status: true, data: { products }, message: null });
   } catch (error) {
     return res
@@ -15,7 +15,7 @@ const getProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const { productId } = req.params;
-    const product = await Product.findById(productId);
+    const product = await Prodcut.findById(productId);
     return res
       .status(200)
       .json({ status: true, data: { product }, message: null });

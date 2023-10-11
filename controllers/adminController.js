@@ -10,15 +10,12 @@ const addProduct = async (req, res) => {
         message: "Missing required fields",
       });
     }
-    const product = new Product(
-      title,
-      price,
-      description,
-      imageUrl,
-      req.user._id
-    );
-    await product.save();
-
+    const product = await Product.create({
+      title: title,
+      price: price,
+      description: description,
+      imageUrl: imageUrl,
+    });
     return res.status(201).json({
       status: true,
       data: product,
@@ -33,7 +30,7 @@ const addProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.fetchAll();
+    const products = await Product.find();
     return res
       .status(200)
       .json({ status: true, data: { products }, message: null });
@@ -60,11 +57,26 @@ const editProduct = async (req, res) => {
         message: "Missing required fields",
       });
     }
-    const product = new Product(title, price, description, imageUrl);
-    await product.save(productId);
-    return res
-      .status(201)
-      .json({ status: true, data: null, message: "Product edit successfully" });
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      {
+        title: title,
+        price: price,
+        description: description,
+        imageUrl: imageUrl,
+      },
+      { new: true } // This option returns the modified document rather than the original.
+    );
+    if (!updatedProduct) {
+      return res
+        .status(404)
+        .json({ status: false, data: null, message: "Product not found" });
+    }
+    return res.status(201).json({
+      status: true,
+      data: updatedProduct,
+      message: "Product edited successfully",
+    });
   } catch (error) {
     return res
       .status(500)
@@ -80,7 +92,12 @@ const deleteProduct = async (req, res) => {
         .status(400)
         .json({ status: false, data: null, message: "Missing product id" });
     }
-    const deletedProduct = await Product.delete(productId);
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+    if (!deletedProduct) {
+      return res
+        .status(404)
+        .json({ status: false, data: null, message: "Product not found" });
+    }
     return res.status(201).json({
       status: true,
       data: deletedProduct,
