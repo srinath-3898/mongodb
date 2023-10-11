@@ -5,6 +5,8 @@ const {
   addProductToCart,
   getCart,
   deleteProductFromCart,
+  placeOrder,
+  getOrders,
 } = require("../controllers/shopController");
 
 const router = express.Router();
@@ -14,5 +16,7 @@ router.get("/products/:productId", getProductById);
 router.post("/add-to-cart", addProductToCart);
 router.get("/cart", getCart);
 router.get("/delete-product/:productId", deleteProductFromCart);
+router.get("/place-order", placeOrder);
+router.get("/get-orders", getOrders);
 
 module.exports = router;

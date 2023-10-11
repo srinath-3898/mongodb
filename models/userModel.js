@@ -42,7 +42,6 @@ class User {
     const updatedCart = {
       products: updatedCartProducts,
     };
-    console.log(updatedCart);
     const db = getDb();
     return db
       .collection("users")
@@ -86,6 +85,42 @@ class User {
         { $set: { cart: { products: updatedCartProducts } } }
       )
       .then((result) => result)
+      .catch((err) => err);
+  }
+
+  static addOrder(user) {
+    const db = getDb();
+    return this.getCart(user.cart)
+      .then((products) => {
+        console.log(products);
+        const order = {
+          items: products,
+          user: {
+            _id: new mongodb.ObjectId(user._id),
+            name: user.username,
+          },
+        };
+        return db.collection("orders").insertOne(order);
+      })
+      .then((result) => {
+        cart = { products: [] };
+        return db
+          .collection("users")
+          .updateOne(
+            { _id: new mongodb.ObjectId(user._id) },
+            { $set: { cart: { products: [] } } }
+          );
+      })
+      .catch((err) => err);
+  }
+
+  static getOrders(user) {
+    const db = getDb();
+    return db
+      .collection("orders")
+      .find({ "user._id": new mongodb.ObjectId(user._id) })
+      .toArray()
+      .then((orders) => orders)
       .catch((err) => err);
   }
 

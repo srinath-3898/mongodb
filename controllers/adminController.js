@@ -34,7 +34,6 @@ const addProduct = async (req, res) => {
 const getProducts = async (req, res) => {
   try {
     const products = await Product.fetchAll();
-    console.log(products);
     return res
       .status(200)
       .json({ status: true, data: { products }, message: null });

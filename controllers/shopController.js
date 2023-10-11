@@ -15,7 +15,6 @@ const getProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const { productId } = req.params;
-    console.log(productId);
     const product = await Product.findById(productId);
     return res
       .status(200)
@@ -66,13 +65,37 @@ const deleteProductFromCart = async (req, res) => {
   try {
     const { productId } = req.params;
     await User.deleteProductFromCart(productId, req.user._id, req.user.cart);
+    return res.status(200).json({
+      status: true,
+      data: null,
+      message: "Product deleted from cart successfully",
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: false, data: null, message: error.message });
+  }
+};
+
+const placeOrder = async (req, res) => {
+  try {
+    await User.addOrder(req.user);
+    return res
+      .status(201)
+      .json({ status: true, data: null, message: "Order placed successfully" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: false, data: null, message: error.message });
+  }
+};
+
+const getOrders = async (req, res) => {
+  try {
+    const orders = await User.getOrders(req.user);
     return res
       .status(200)
-      .json({
-        status: true,
-        data: null,
-        message: "Product deleted from cart successfully",
-      });
+      .json({ status: true, data: { orders }, message: null });
   } catch (error) {
     return res
       .status(500)
@@ -86,4 +109,6 @@ module.exports = {
   addProductToCart,
   getCart,
   deleteProductFromCart,
+  placeOrder,
+  getOrders,
 };
