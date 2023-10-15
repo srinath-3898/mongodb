@@ -74,10 +74,16 @@ const getCart = async (req, res) => {
 const deleteProductFromCart = async (req, res) => {
   try {
     const { productId } = req.params;
-    await User.deleteProductFromCart(productId, req.user._id, req.user.cart);
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ status: false, data: null, message: "No product found" });
+    }
+    const updatedCart = await req.user.deleteProductFromCart(productId);
     return res.status(200).json({
       status: true,
-      data: null,
+      data: updatedCart,
       message: "Product deleted from cart successfully",
     });
   } catch (error) {
