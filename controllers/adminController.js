@@ -15,6 +15,7 @@ const addProduct = async (req, res) => {
       price: price,
       description: description,
       imageUrl: imageUrl,
+      userId: req.user._id,
     });
     return res.status(201).json({
       status: true,
@@ -31,6 +32,8 @@ const addProduct = async (req, res) => {
 const getProducts = async (req, res) => {
   try {
     const products = await Product.find();
+    // .select("title price -_id")
+    // .populate("userId", "name email");
     return res
       .status(200)
       .json({ status: true, data: { products }, message: null });
@@ -65,7 +68,7 @@ const editProduct = async (req, res) => {
         description: description,
         imageUrl: imageUrl,
       },
-      { new: true } // This option returns the modified document rather than the original.
+      { new: true }
     );
     if (!updatedProduct) {
       return res

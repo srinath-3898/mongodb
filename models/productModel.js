@@ -1,79 +1,19 @@
 const mongoose = require("mongoose");
 
-const productSchema = mongoose.Schema(
+const productSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     price: { type: Number, required: true },
     description: { type: String, required: true },
     imageUrl: { type: String, required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
-const Prodcut = mongoose.model("Product", productSchema);
-
-module.exports = Prodcut;
-
-// const mongodb = require("mongodb");
-// const { getDb } = require("../configs/db");
-
-// class Product {
-//   constructor(title, price, description, imageUrl, userId) {
-//     this.title = title;
-//     this.price = price;
-//     this.description = description;
-//     this.imageUrl = imageUrl;
-//     this.userId = userId;
-//   }
-//   save(productId) {
-//     const db = getDb();
-//     if (productId) {
-//       return db
-//         .collection("products")
-//         .updateOne({ _id: new mongodb.ObjectId(productId) }, { $set: this })
-//         .then((product) => product)
-//         .catch((err) => err);
-//     } else {
-//       return db
-//         .collection("products")
-//         .insertOne(this)
-//         .then((product) => product)
-//         .catch((err) => console.log(err));
-//     }
-//   }
-
-//   static fetchAll() {
-//     const db = getDb();
-//     return db
-//       .collection("products")
-//       .find()
-//       .toArray()
-//       .then((products) => {
-//         return products;
-//       })
-//       .catch((err) => console.log(err));
-//   }
-
-//   static findById(productId) {
-//     const db = getDb();
-//     return db
-//       .collection("products")
-//       .find({ _id: new mongodb.ObjectId(productId) })
-//       .next()
-//       .then((product) => {
-//         return product;
-//       })
-//       .catch((err) => console.log(err));
-//   }
-
-//   static delete(productId) {
-//     const db = getDb();
-//     return db
-//       .collection("products")
-//       .deleteOne({ _id: new mongodb.ObjectId(productId) })
-//       .then((product) => product)
-//       .catch((err) => err);
-//   }
-// }
-
-// module.exports = Product;
+const Product = mongoose.model("Product", productSchema);
+module.exports = Product;
