@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
-  User.findById("652b7b6c69b4db5b45a29b61")
+  User.findById("652bac2eb45e43380e3c4a3b")
     .then((user) => {
       req.user = user;
       next();
