@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
-  User.findById("652bac2eb45e43380e3c4a3b")
+  User.findById("652bb56377122b2a28c39d00")
     .then((user) => {
       req.user = user;
       next();
@@ -27,7 +27,7 @@ connectDB().then(async () => {
     await User.create({
       name: "srinath",
       email: "srinath.3898@gmail.com",
-      cart: { products: [] },
+      cart: { products: [], totalPrice: 0 },
     });
   }
 

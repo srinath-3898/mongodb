@@ -1,6 +1,5 @@
 const Order = require("../models/orderModel");
 const Product = require("../models/productModel");
-const User = require("../models/userModel");
 
 const getProducts = async (req, res) => {
   try {
@@ -17,6 +16,11 @@ const getProductById = async (req, res) => {
   try {
     const { productId } = req.params;
     const product = await Product.findById(productId);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ status: false, data: null, messgae: "No product found" });
+    }
     return res
       .status(200)
       .json({ status: true, data: { product }, message: null });
@@ -81,7 +85,7 @@ const deleteProductFromCart = async (req, res) => {
         .status(404)
         .json({ status: false, data: null, message: "No product found" });
     }
-    const updatedCart = await req.user.deleteProductFromCart(productId);
+    const updatedCart = await req.user.deleteProductFromCart(product);
     return res.status(200).json({
       status: true,
       data: updatedCart,
@@ -96,36 +100,30 @@ const deleteProductFromCart = async (req, res) => {
 
 const placeOrder = async (req, res) => {
   try {
-    let totalPrice = 0;
     const cartProducts = req.user.cart.products;
     if (cartProducts.length === 0) {
       return res
         .status(400)
         .json({ status: false, data: null, message: "Your cart is empty" });
     }
-    for (const cartProduct of cartProducts) {
-      const product = await Product.findById(cartProduct.product);
-      if (!product) {
-        throw new Error(`Product with ID ${cartProduct.product} not found.`);
-      }
-      totalPrice += product.price * cartProduct.quantity;
-    }
     const order = await Order.create({
       products: cartProducts,
       user: req.user._id,
-      totalPrice,
+      totalPrice: req.user.cart.totalPrice,
     });
     if (!order) {
       throw new Error(
         "Something went wrong while placing order, please try again"
       );
     }
+    await req.user.clearCart();
     return res.status(201).json({
       status: true,
       data: order,
       message: "Order placed successfully",
     });
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ status: false, data: null, message: error.message });

@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema(
           quantity: { type: Number, required: true },
         },
       ],
+      totalPrice: { type: Number, required: true },
     },
   },
   {
@@ -38,15 +39,29 @@ userSchema.methods.addToCart = function (product) {
     });
   }
   this.cart.products = updatedCartProducts;
+  this.cart.totalPrice += product.price;
   return this.save();
 };
 
-userSchema.methods.deleteProductFromCart = function (productId) {
-  const updatedCartProducts = this.cart.products.filter((cartProduct) => {
-    return cartProduct.product.toString() !== productId.toString();
-  });
+userSchema.methods.deleteProductFromCart = function (product) {
+  const toBeDeletedProdcutId = this.cart.products.findIndex(
+    (cartProduct) => product._id.toString() === cartProduct.product.toString()
+  );
+  if (toBeDeletedProdcutId >= 0) {
+    const toBeDeletedProdcut = this.cart.products[toBeDeletedProdcutId];
+    const updatedCartProducts = this.cart.products.filter((cartProduct) => {
+      return cartProduct.product.toString() !== product._id.toString();
+    });
+    this.cart.products = updatedCartProducts;
+    this.cart.totalPrice -= product.price * toBeDeletedProdcut.quantity;
+    return this.save();
+  } else {
+    throw new Error("No such product in your cart");
+  }
+};
 
-  this.cart.products = updatedCartProducts;
+userSchema.methods.clearCart = function () {
+  this.cart = { products: [], totalPrice: 0 };
   return this.save();
 };
 
