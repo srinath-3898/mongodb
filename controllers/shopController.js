@@ -1,9 +1,9 @@
-const Prodcut = require("../models/productModel");
+const Product = require("../models/productModel");
 const User = require("../models/userModel");
 
 const getProducts = async (req, res) => {
   try {
-    const products = await Prodcut.find();
+    const products = await Product.find();
     return res.json({ status: true, data: { products }, message: null });
   } catch (error) {
     return res
@@ -15,7 +15,7 @@ const getProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const { productId } = req.params;
-    const product = await Prodcut.findById(productId);
+    const product = await Product.findById(productId);
     return res
       .status(200)
       .json({ status: true, data: { product }, message: null });
@@ -28,17 +28,22 @@ const getProductById = async (req, res) => {
 
 const addProductToCart = async (req, res) => {
   try {
-    const { productId } = req.body;
+    const { productId } = req.params;
     if (!productId) {
       return res
         .status(400)
         .json({ status: false, data: null, message: "Missing product id" });
     }
     const product = await Product.findById(productId);
-    const result = await User.addToCart(product, req.user._id, req.user.cart);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ status: false, data: null, message: "Product not found" });
+    }
+    const updatedCart = await req.user.addToCart(product);
     return res.status(201).json({
       status: true,
-      data: result,
+      data: updatedCart,
       message: "Product added to cart successfully",
     });
   } catch (error) {
@@ -50,10 +55,15 @@ const addProductToCart = async (req, res) => {
 
 const getCart = async (req, res) => {
   try {
-    const cart = await User.getCart(req.user.cart);
-    return res
-      .status(200)
-      .json({ status: true, data: { cart }, message: null });
+    if (!req.user.cart.products) {
+      return res.status(200).json({
+        status: true,
+        data: { cart: [] },
+        message: "Cart is empty",
+      });
+    }
+    const cart = await req.user.populate("cart.products.productId");
+    return res.status(200).json({ status: true, data: cart, message: null });
   } catch (error) {
     return res
       .status(500)

@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get("/products", getProducts);
 router.get("/products/:productId", getProductById);
-router.post("/add-to-cart", addProductToCart);
+router.get("/add-to-cart/:productId", addProductToCart);
 router.get("/cart", getCart);
 router.get("/delete-product/:productId", deleteProductFromCart);
 router.get("/place-order", placeOrder);

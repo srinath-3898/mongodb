@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
-  User.findById("652b707500854d9af1b47fe8")
+  User.findById("652b7b6c69b4db5b45a29b61")
     .then((user) => {
       req.user = user;
       next();
@@ -30,6 +30,7 @@ connectDB().then(async () => {
       cart: { products: [] },
     });
   }
+
   app.listen(3000, () => {
     console.log("server running pn port 3000");
   });
